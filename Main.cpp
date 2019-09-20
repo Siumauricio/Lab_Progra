@@ -1,6 +1,10 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
+
+
+
 using namespace sf;
+using namespace std;
 
 //tamano de pantalla
 int N = 30, M = 20;
@@ -8,15 +12,15 @@ int Tamano = 16;
 //Tamano 
 int w = Tamano * N;
 int h = Tamano * M;
-bool arriba=true, abajo=true, derecha=true, izquierda=true;
+bool arriba = true, abajo = true, derecha = true, izquierda = true;
 
-int dir, num = 4;
+int dir, num = 1;
 
 //snake
 struct Snake
 {
 	int x, y;
-}  s[100];
+}   s[100];
 
 //comida
 struct Fruct
@@ -47,7 +51,6 @@ void SnakeMov()
 	if (dir == 3) {
 		s[0].y -= 1;
 	}
-
 	//tamano de snake cuando come comida
 	if ((s[0].x == f.x) && (s[0].y == f.y))
 	{
@@ -62,9 +65,18 @@ void SnakeMov()
 	if (s[0].x > N) s[0].x = 0;  if (s[0].x < 0) s[0].x = N;
 	if (s[0].y > M) s[0].y = 0;  if (s[0].y < 0) s[0].y = M;
 
-
-	// validacion de piezas que se remueven al tocarse el mismo
-
+}
+//Chequeo de la colision con ella misma
+bool death(void)
+{
+	for (int i = 1; i < num; i++)
+	{
+		if (s[0].x == s[i].x && s[0].y == s[i].y)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 int main()
@@ -73,13 +85,15 @@ int main()
 
 	RenderWindow window(VideoMode(w, h), "Snake");
 
-	Texture t1, t2;
-	t1.loadFromFile("C:\\Users\\Mauricio\\source\\repos\\Sna\\images\\white.png");
-	t2.loadFromFile("C:\\Users\\Mauricio\\source\\repos\\Sna\\images\\green.png");
+	Texture t1, t2, t3;
+	t1.loadFromFile("C:\\Users\\lopez\\OneDrive\\Escritorio\\SFML\\SFMLworm\\SFMLworm\\red.png");
+	t2.loadFromFile("C:\\Users\\lopez\\OneDrive\\Escritorio\\SFML\\SFMLworm\\SFMLworm\\green.png");
+	t3.loadFromFile("C:\\Users\\lopez\\OneDrive\\Escritorio\\SFML\\SFMLworm\\SFMLworm\\greenHead.png");
 
 	//carga imagenes al sprite
 	Sprite sprite1(t1);
 	Sprite sprite2(t2);
+	Sprite sprite3(t3);
 
 	Clock clock;
 	float tiempo = 0, delay = 0.1;
@@ -103,25 +117,25 @@ int main()
 				window.close();
 		}
 		//Manejo de teclas.
-		if (Keyboard::isKeyPressed(Keyboard::Left)&&izquierda) {
+		if (Keyboard::isKeyPressed(Keyboard::Left) && izquierda) {
 			derecha = false;
 			abajo = true;
 			arriba = true;
 			dir = 1;
 		}
-		if (Keyboard::isKeyPressed(Keyboard::Right)&&derecha) {
+		if (Keyboard::isKeyPressed(Keyboard::Right) && derecha) {
 			izquierda = false;
 			abajo = true;
 			arriba = true;
 			dir = 2;
 		}
-		if (Keyboard::isKeyPressed(Keyboard::Up)&&arriba) {
+		if (Keyboard::isKeyPressed(Keyboard::Up) && arriba) {
 			izquierda = true;
 			derecha = true;
 			abajo = false;
 			dir = 3;
 		}
-		if (Keyboard::isKeyPressed(Keyboard::Down)&&abajo) {
+		if (Keyboard::isKeyPressed(Keyboard::Down) && abajo) {
 			dir = 0;
 			derecha = true;
 			izquierda = true;
@@ -134,7 +148,12 @@ int main()
 			//movimiento snake
 			tiempo = 0;
 			// algoritmo de movimiento
+			if (death())
+			{
+				exit(EXIT_SUCCESS);
+			}
 			SnakeMov();
+
 		}
 
 		window.clear();
@@ -144,7 +163,7 @@ int main()
 
 		for (int i = 0; i < num; i++)
 		{
-			if (s[i].x!=s[i].y)
+			if (s[i].x != s[i].y)
 			{
 
 			}
@@ -152,17 +171,19 @@ int main()
 				break;
 			}
 		}
-			for (int i = 0; i < num; i++)
-			{
-				//Spawnear Serpiente
-				sprite2.setPosition(s[i].x*Tamano, s[i].y*Tamano); 
-				window.draw(sprite2);
-			}
+		for (int i = 0; i < num; i++)
+		{
+			//Spawnear Serpiente
+			sprite3.setPosition(s[0].x*Tamano, s[0].y*Tamano);//Agregar cabeza a la serpiente
+			sprite2.setPosition(s[i].x*Tamano, s[i].y*Tamano);
+			window.draw(sprite3);
+			window.draw(sprite2);
+		}
 		//Spawnear la comida
 		sprite2.setPosition(f.x*Tamano, f.y*Tamano);  window.draw(sprite2);
 
 		window.display();
 	}
-	     
+
 	return 0;
 }
